@@ -41,7 +41,7 @@ exports.getEventRegistrations = async (req, res) => {
   try {
     const registrations = await Registration.find({
       event: req.params.eventId,
-    }).populate("user", "name email");
+    }).populate('user', 'name email scholarId branch phone profilePicture');;
     res.json(registrations);
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });

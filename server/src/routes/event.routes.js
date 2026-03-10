@@ -14,9 +14,15 @@ router.post(
   protect,
   adminOnly,
   upload.single("poster"),
-  eventController.createEvent
+  eventController.createEvent,
 );
-router.put("/:id", protect, adminOnly, eventController.updateEvent);
+router.put(
+  "/:id",
+  protect,
+  adminOnly,
+  upload.single("poster"),
+  eventController.updateEvent,
+);
 router.delete("/:id", protect, adminOnly, eventController.deleteEvent);
 
 router.put(

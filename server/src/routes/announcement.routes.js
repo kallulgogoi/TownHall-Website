@@ -6,6 +6,12 @@ const { protect } = require("../middleware/auth.middleware");
 const { adminOnly } = require("../middleware/admin.middleware");
 
 router.get("/", announcementController.getAnnouncements);
+router.put(
+  "/:id",
+  protect,
+  adminOnly,
+  announcementController.updateAnnouncement,
+);
 router.post("/", protect, adminOnly, announcementController.createAnnouncement);
 router.delete(
   "/:id",

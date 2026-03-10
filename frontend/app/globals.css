@@ -4,11 +4,16 @@ body {
   color: #ffffff;
 }
 
-/* Custom Yellow Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
+@keyframes mask-reveal {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
 }
-::-webkit-scrollbar-thumb {
-  background: #facc15; /* brand-yellow */
-  border-radius: 10px;
+
+.mask-reveal {
+  animation: mask-reveal 1.2s cubic-bezier(0.77, 0, 0.175, 1) forwards;
 }
+
+/* Custom Scrollbar for a premium feel */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0a0a0a; }
+::-webkit-scrollbar-thumb { background: #facc15; border-radius: 10px; }

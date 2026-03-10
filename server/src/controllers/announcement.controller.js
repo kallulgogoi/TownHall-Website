@@ -82,3 +82,44 @@ exports.deleteAnnouncement = async (req, res) => {
     });
   }
 };
+
+// update announcement
+exports.updateAnnouncement = async (req, res) => {
+  try {
+    const { title, message } = req.body;
+    const announcement = await Announcement.findById(req.params.id);
+
+    if (!announcement) {
+      return res.status(404).json({ message: "Announcement not found" });
+    }
+
+    if (title) {
+      if (title.length < 10 || title.length > 50) {
+        return res
+          .status(400)
+          .json({ message: "Title must be between 10 and 50 characters" });
+      }
+      announcement.title = title.trim();
+    }
+
+    if (message) {
+      if (message.length < 10 || message.length > 500) {
+        return res
+          .status(400)
+          .json({ message: "Message must be between 10 and 500 characters" });
+      }
+      announcement.message = message.trim();
+    }
+
+    await announcement.save();
+
+    res.json({
+      message: "Announcement updated successfully",
+      announcement,
+    });
+  } catch (error) {
+    res
+      .status(400)
+      .json({ message: "Invalid announcement ID or Server Error" });
+  }
+};

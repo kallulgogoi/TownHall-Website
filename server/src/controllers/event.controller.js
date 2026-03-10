@@ -133,6 +133,8 @@ exports.updateEvent = async (req, res) => {
       return res.status(404).json({ message: "Event not found" });
     }
 
+    const body = req.body || {};
+
     const {
       title,
       description,
@@ -142,8 +144,9 @@ exports.updateEvent = async (req, res) => {
       maxTeamSize,
       whatsappGroupLink,
       registrationStatus,
-    } = req.body;
+    } = body;
 
+    // Validate and Update Title
     if (title) {
       if (title.length < 5 || title.length > 100) {
         return res
@@ -153,6 +156,7 @@ exports.updateEvent = async (req, res) => {
       event.title = title.trim();
     }
 
+    // Validate and Update Description
     if (description) {
       if (description.length < 10 || description.length > 500) {
         return res
@@ -162,45 +166,53 @@ exports.updateEvent = async (req, res) => {
       event.description = description.trim();
     }
 
+    // Handle Date Synchronization
     if (startDateIST) {
       const start = new Date(startDateIST);
-      if (isNaN(start)) {
+      if (isNaN(start))
         return res.status(400).json({ message: "Invalid start date" });
-      }
       event.startDateIST = start;
     }
 
     if (endDateIST) {
       const end = new Date(endDateIST);
-      if (isNaN(end)) {
+      if (isNaN(end))
         return res.status(400).json({ message: "Invalid end date" });
-      }
       event.endDateIST = end;
     }
 
-    if (event.endDateIST <= event.startDateIST) {
+    // Cross-validate dates after potential updates
+    if (new Date(event.endDateIST) <= new Date(event.startDateIST)) {
       return res
         .status(400)
         .json({ message: "End date must be greater than start date" });
     }
 
+    // Mode & Team Size Logic
     if (mode) {
       if (!["solo", "team"].includes(mode)) {
         return res.status(400).json({ message: "Invalid mode" });
       }
       event.mode = mode;
-    }
 
-    if (mode === "solo") {
-      event.maxTeamSize = 1;
-    }
-
-    if (mode === "team" || event.mode === "team") {
-      if (maxTeamSize && Number(maxTeamSize) >= 2) {
-        event.maxTeamSize = Number(maxTeamSize);
+      // If switching to solo, force size to 1
+      if (mode === "solo") {
+        event.maxTeamSize = 1;
       }
     }
 
+    // Only allow team size updates if the current/new mode is 'team'
+    if (event.mode === "team" && maxTeamSize) {
+      const size = Number(maxTeamSize);
+      if (isNaN(size) || size < 2) {
+        return res
+          .status(400)
+          .json({ message: "Team events must have maxTeamSize >= 2" });
+      }
+      event.maxTeamSize = size;
+    }
+
+    // Social & Metadata
     if (whatsappGroupLink !== undefined) {
       event.whatsappGroupLink = whatsappGroupLink;
     }
@@ -212,17 +224,25 @@ exports.updateEvent = async (req, res) => {
       event.registrationStatus = registrationStatus;
     }
 
-    // Safely update poster file if a new one was uploaded
+    // If Multer processed a new file, update the posterUrl
     if (req.file && req.file.path) {
       event.posterUrl = req.file.path;
     }
 
     await event.save();
 
-    res.json({ message: "Event updated successfully", event });
+    res.status(200).json({
+      message: "Arena Intelligence Synchronized",
+      event,
+    });
   } catch (error) {
     console.error("UPDATE EVENT ERROR:", error);
-    res.status(400).json({ message: "Invalid event ID" });
+    if (error.kind === "ObjectId") {
+      return res.status(400).json({ message: "Target Event ID is malformed" });
+    }
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
   }
 };
 

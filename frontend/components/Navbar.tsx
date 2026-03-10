@@ -33,7 +33,6 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Dark overlay with your color palette accent */}
       <div
         className={`fixed inset-0 bg-black/95 backdrop-blur-sm z-[150] transition-all duration-500 lg:hidden ${
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
@@ -125,7 +124,7 @@ export default function Navbar() {
                 >
                   <LogOut className="w-4 h-4 group-hover:rotate-180 transition-transform duration-300" />
                   <span className="text-xs font-bold uppercase tracking-wider">
-                    EJECT
+                    LOGOUT
                   </span>
                 </button>
               ) : (

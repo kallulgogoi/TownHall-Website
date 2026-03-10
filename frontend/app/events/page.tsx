@@ -11,6 +11,7 @@ import {
   ChevronRight,
   Sparkles,
 } from "lucide-react";
+import Image from "next/image";
 
 export default function EventsPage() {
   const [events, setEvents] = useState<any[]>([]);
@@ -83,10 +84,12 @@ export default function EventsPage() {
               >
                 {/* Image Container */}
                 <div className="relative h-48 overflow-hidden bg-black">
-                  <img
+                  <Image
                     src={event.posterUrl}
                     alt={event.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
+                    width={400}
+                    height={200}
                   />
 
                   {/* Gradient Overlay */}

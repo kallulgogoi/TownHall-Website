@@ -120,7 +120,9 @@ exports.getEventTeams = async (req, res) => {
   try {
     const teams = await Team.find({
       event: req.params.eventId,
-    }).populate("members", "name email");
+    })
+      .populate("teamLeader", "name email scholarId branch phone")
+      .populate("members", "name scholarId branch");
 
     res.json(teams);
   } catch (error) {
