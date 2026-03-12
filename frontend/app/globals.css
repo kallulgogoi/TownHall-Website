@@ -3,17 +3,42 @@ body {
   background-color: #1a1a1a; /* brand-black */
   color: #ffffff;
 }
-
-@keyframes mask-reveal {
-  from { clip-path: inset(0 100% 0 0); }
-  to { clip-path: inset(0 0 0 0); }
+@layer utilities {
+  .gallery-curve-mask {
+    /* Fades the images into the background at the edges */
+    mask-image: radial-gradient(ellipse at center, black 40%, transparent 95%);
+  }
+}
+@layer utilities {
+  .font-outline-2 {
+    -webkit-text-stroke: 2px white;
+    color: transparent;
+  }
+}
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-.mask-reveal {
-  animation: mask-reveal 1.2s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+@keyframes spin-reverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+@keyframes stadium-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(250, 204, 21, 0.1); }
+  50% { box-shadow: 0 0 40px rgba(250, 204, 21, 0.3); }
+}
+
+.beyblade-spin {
+  animation: spin-slow 12s linear infinite;
+}
+
+.beyblade-reverse {
+  animation: spin-reverse 8s linear infinite;
 }
 
 /* Custom Scrollbar for a premium feel */
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #0a0a0a; }
+::-webkit-scrollbar-track { background: #000000; }
 ::-webkit-scrollbar-thumb { background: #facc15; border-radius: 10px; }

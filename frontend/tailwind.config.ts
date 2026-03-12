@@ -10,7 +10,7 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          black: "#1a1a1a",   // Dark background from logo
+          black: "#000000",   // Dark background from logo
           yellow: "#facc15",  // Signature Coding Club Yellow
           white: "#ffffff",   // Stark white for contrast
           grey: "#333333",    // Subtle borders/cards
