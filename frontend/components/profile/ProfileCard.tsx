@@ -150,14 +150,14 @@ export default function ProfileCard({
               className="w-full bg-[#0a0a0a] border border-white/10 rounded-lg px-4 py-2 text-sm"
               placeholder="Phone"
             />
-            <label className="flex items-center gap-2 p-3 border border-dashed border-white/10 rounded-lg cursor-pointer text-xs text-white/40">
+            {/* <label className="flex items-center gap-2 p-3 border border-dashed border-white/10 rounded-lg cursor-pointer text-xs text-white/40">
               <Camera size={14} /> {editFile ? editFile.name : "Upload Photo"}
               <input
                 type="file"
                 onChange={(e) => setEditFile(e.target.files?.[0] || null)}
                 className="hidden"
               />
-            </label>
+            </label> */}
             <div className="flex gap-2">
               <button
                 type="button"
