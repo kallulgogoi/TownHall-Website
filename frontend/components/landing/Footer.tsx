@@ -54,12 +54,15 @@ export default function Footer() {
               {[
                 {
                   icon: Instagram,
-                  href: "https://instagram.com/codingclubnits",
+                  href: "https://www.instagram.com/coding_club_nits/",
                 },
-                { icon: Facebook, href: "https://facebook.com/codingclubnits" },
+                {
+                  icon: Facebook,
+                  href: "https://www.facebook.com/groups/CodingClub.NITSilchar",
+                },
                 {
                   icon: Linkedin,
-                  href: "https://linkedin.com/company/coding-club-nit-silchar",
+                  href: "https://www.linkedin.com/company/coding-club-nit-silchar/",
                 },
               ].map((social, i) => (
                 <a

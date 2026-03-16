@@ -66,7 +66,7 @@ const TerminalWidget = () => {
           <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/50" />
           <span className="w-2.5 h-2.5 rounded-full bg-green-500/50" />
         </div>
-        <span className="ml-2 text-white/20 text-[9px] uppercase tracking-widest font-custom">
+        <span className="ml-2 text-white/60 text-[9px] uppercase tracking-widest font-custom">
           system.console
         </span>
       </div>
@@ -103,11 +103,9 @@ export default function HeroSection() {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
-  // Smooth out the movement
   const mouseX = useSpring(x, { stiffness: 150, damping: 20 });
   const mouseY = useSpring(y, { stiffness: 150, damping: 20 });
 
-  // Map mouse position to rotation degrees
   const rotateX = useTransform(mouseY, [-0.5, 0.5], ["10deg", "-10deg"]);
   const rotateY = useTransform(mouseX, [-0.5, 0.5], ["-10deg", "10deg"]);
 
@@ -118,7 +116,6 @@ export default function HeroSection() {
     const mouseXPos = event.clientX - rect.left;
     const mouseYPos = event.clientY - rect.top;
 
-    // Normalize values between -0.5 and 0.5
     x.set(mouseXPos / width - 0.5);
     y.set(mouseYPos / height - 0.5);
   }
@@ -134,16 +131,27 @@ export default function HeroSection() {
       onMouseLeave={handleMouseLeave}
       className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-black px-4 pt-24 pb-12 lg:py-0"
     >
-      {/*Background */}
+      {/* --- Background Assets --- */}
       <div className="absolute inset-0 z-0">
         <Image
           src="/images/hero.gif"
           alt="Background"
           fill
+          unoptimized
           priority
           className="object-cover opacity-20 grayscale contrast-125"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-black/20 to-black" />
+        <div className="absolute inset-0 bg-linear-to-b from-black via-black/20 to-black" />
+      </div>
+
+      <div className="hidden lg:block absolute z-[1] -left-30 top-4/6 pointer-events-none grayscale brightness-50 rotate-45">
+        <Image
+          src="/images/beyblade1.png"
+          height={300}
+          width={300}
+          alt="background-blade"
+          className="object-contain"
+        />
       </div>
 
       <div className="absolute inset-0 z-[1] pointer-events-none">
@@ -156,7 +164,7 @@ export default function HeroSection() {
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-3 px-4 py-1.5 rounded-full border border-yellow-400/20 bg-yellow-400/5"
+            className="flex items-center gap-3 px-4 py-1.5 rounded-full border border-yellow-400/50 bg-yellow-400/5"
           >
             <div className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse" />
             <span className="text-yellow-400/80 text-[10px] sm:text-xs tracking-[0.2em] uppercase font-custom">
@@ -167,7 +175,7 @@ export default function HeroSection() {
           <div className="space-y-2">
             <motion.p
               initial={{ opacity: 0 }}
-              animate={{ opacity: 0.4 }}
+              animate={{ opacity: 0.9 }}
               transition={{ delay: 0.2 }}
               className="text-[10px] sm:text-xs tracking-[0.6em] uppercase text-white font-mono"
             >
@@ -203,22 +211,20 @@ export default function HeroSection() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1 }}
-            className="hidden lg:block text-[10px] text-white/60 tracking-[0.3em] font-mono uppercase"
+            className="hidden lg:block text-[10px] text-white/80 tracking-[0.3em] font-mono uppercase"
           >
             &gt; arena_mode: active // protocol: let_it_rip
           </motion.div>
         </div>
 
-        {/* Tyson  */}
+        {/* Tyson */}
         <div className="flex-1 order-2 flex items-center justify-center relative w-full lg:order-2">
-          {/* Background spinning ring */}
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
             className="absolute w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] border border-yellow-400/10 rounded-full border-dashed pointer-events-none"
           />
 
-          {/* 3D Motion Container */}
           <motion.div
             style={{
               rotateX,
