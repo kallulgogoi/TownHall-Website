@@ -144,7 +144,7 @@ export default function HeroSection() {
         <div className="absolute inset-0 bg-linear-to-b from-black via-black/20 to-black" />
       </div>
 
-      <div className="hidden lg:block absolute z-[1] -left-30 top-4/6 pointer-events-none grayscale brightness-50 rotate-45">
+      {/* <div className="hidden lg:block absolute z-[1] -left-30 top-4/6 pointer-events-none grayscale brightness-50 rotate-45">
         <Image
           src="/images/beyblade1.png"
           height={300}
@@ -152,7 +152,7 @@ export default function HeroSection() {
           alt="background-blade"
           className="object-contain"
         />
-      </div>
+      </div> */}
 
       <div className="absolute inset-0 z-[1] pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] bg-yellow-400/10 rounded-full blur-[120px]" />
