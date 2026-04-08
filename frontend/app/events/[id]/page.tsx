@@ -13,7 +13,6 @@ import {
   Shield,
   UserPlus,
   ChevronLeft,
-  AlertCircle,
   CheckCircle,
 } from "lucide-react";
 
@@ -22,32 +21,114 @@ export default function EventDetailPage() {
   const { isAuthenticated, user } = useAuth();
   const router = useRouter();
   const [event, setEvent] = useState<any>(null);
+  const [myRegistration, setMyRegistration] = useState<any>(null);
+
   const [teamName, setTeamName] = useState("");
   const [emails, setEmails] = useState<string[]>([""]);
   const [isRegistering, setIsRegistering] = useState(false);
 
-  useEffect(() => {
-    api.get(`/events/${id}`).then((res) => setEvent(res.data));
-  }, [id]);
+  // CF States
+  const [soloCF, setSoloCF] = useState("");
+  const [leaderCF, setLeaderCF] = useState("");
+  const [memberCFs, setMemberCFs] = useState<string[]>([""]);
 
-  const isUserRegistered = event?.participants?.some(
-    (p: any) => (p._id || p) === user?._id,
-  );
+  useEffect(() => {
+    api.get(`/events/${id}`).then((res) => {
+      setEvent(res.data);
+
+      // Check if user is already registered to pre-fill and disable the form
+      if (isAuthenticated && user) {
+        api
+          .get(`/registrations/${res.data.mode}/event/${id}`)
+          .then((regRes) => {
+            const reg = regRes.data.find((r: any) => {
+              if (res.data.mode === "solo") {
+                return (r.user?._id || r.user) === (user?._id || user?.id);
+              } else {
+                const leaderMatch =
+                  (r.teamLeader?._id || r.teamLeader) ===
+                  (user?._id || user?.id);
+                const memberMatch = r.members?.some(
+                  (m: any) => (m._id || m) === (user?._id || user?.id),
+                );
+                return leaderMatch || memberMatch;
+              }
+            });
+
+            if (reg) {
+              setMyRegistration(reg);
+              // Pre-fill the states with the user's fetched registration data
+              if (res.data.mode === "solo") {
+                if (reg.codeforcesHandle) setSoloCF(reg.codeforcesHandle);
+              } else {
+                if (reg.teamName) setTeamName(reg.teamName);
+                if (reg.leaderCodeforcesHandle)
+                  setLeaderCF(reg.leaderCodeforcesHandle);
+
+                if (reg.members && reg.members.length > 0) {
+                  // Fallback to scholarId if backend hides email for members
+                  const loadedEmails = reg.members.map(
+                    (m: any) => m.email || m.scholarId || m.name || "Member",
+                  );
+                  const loadedCFs =
+                    reg.memberCodeforcesHandles &&
+                    reg.memberCodeforcesHandles.length > 0
+                      ? reg.memberCodeforcesHandles
+                      : Array(reg.members.length).fill("");
+
+                  setEmails(loadedEmails);
+                  setMemberCFs(loadedCFs);
+                }
+              }
+            }
+          })
+          .catch((err) =>
+            console.error("Could not fetch user registrations", err),
+          );
+      }
+    });
+  }, [id, isAuthenticated, user]);
+
+  const isUserRegistered =
+    !!myRegistration ||
+    event?.participants?.some((p: any) => (p._id || p) === user?._id);
 
   const handleRegister = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!isAuthenticated) return router.push("/auth");
     if (isUserRegistered) return;
 
+    if (event.mode === "solo" && event.requiresCodeforces && !soloCF.trim()) {
+      return toast.error("Your Codeforces Handle is required");
+    }
+
+    if (event.mode === "team" && event.requiresCodeforces) {
+      if (!leaderCF.trim())
+        return toast.error("Leader's Codeforces Handle is required");
+      const validEmails = emails.filter((em) => em.trim() !== "");
+      const validCFs = memberCFs.filter((cf, i) => emails[i].trim() !== "");
+      if (
+        validEmails.length !== validCFs.filter((cf) => cf.trim() !== "").length
+      ) {
+        return toast.error("All members must provide a Codeforces Handle");
+      }
+    }
+
     const loadingToast = toast.loading("Processing registration...");
     setIsRegistering(true);
     try {
       if (event.mode === "solo") {
-        await api.post(`/registrations/solo/${id}`);
+        await api.post(`/registrations/solo/${id}`, {
+          codeforcesHandle: soloCF.trim(),
+        });
       } else {
         await api.post(`/registrations/team/${id}`, {
           teamName,
-          members: emails.filter((e) => e.trim() !== ""),
+          members: emails.filter((em) => em.trim() !== ""),
+          leaderCodeforcesHandle: leaderCF.trim(),
+          memberCodeforcesHandles: memberCFs
+            .filter((_, i) => emails[i].trim() !== "")
+            .map((cf) => cf.trim()),
         });
       }
       toast.success("Successfully registered!", { id: loadingToast });
@@ -75,6 +156,13 @@ export default function EventDetailPage() {
   }
 
   const isOpen = event.registrationStatus === "open";
+
+  // Dynamic input styling based on registration status
+  const inputBaseStyle =
+    "w-full bg-black border-2 rounded-xl px-5 py-4 text-white outline-none transition-colors";
+  const inputActiveStyle = "border-yellow-400/20 focus:border-yellow-400/60";
+  const inputDisabledStyle =
+    "border-gray-800 opacity-60 cursor-not-allowed text-gray-400";
 
   return (
     <main className="min-h-screen bg-[#0a0a0a] font-custom">
@@ -141,10 +229,19 @@ export default function EventDetailPage() {
               <div className="bg-[#111111] border border-yellow-400/20 rounded-lg p-4">
                 <Calendar className="w-5 h-5 text-yellow-400 mb-2" />
                 <p className="text-white/60 text-[10px] font-bold mb-1 uppercase tracking-widest">
-                  DATE
+                  START DATE
                 </p>
                 <p className="text-white font-bold text-sm">
-                  {new Date(event.startDateIST).toLocaleDateString()}
+                  {new Date(event.startDateIST).toLocaleDateString("en-IN")}
+                </p>
+              </div>
+              <div className="bg-[#111111] border border-yellow-400/20 rounded-lg p-4">
+                <Calendar className="w-5 h-5 text-yellow-400 mb-2" />
+                <p className="text-white/60 text-[10px] font-bold mb-1 uppercase tracking-widest">
+                  END DATE
+                </p>
+                <p className="text-white font-bold text-sm">
+                  {new Date(event.endDateIST).toLocaleDateString("en-IN")}
                 </p>
               </div>
               <div className="bg-[#111111] border border-yellow-400/20 rounded-lg p-4">
@@ -169,15 +266,6 @@ export default function EventDetailPage() {
                   {event.mode === "team" && `(${event.maxTeamSize})`}
                 </p>
               </div>
-              <div className="bg-[#111111] border border-yellow-400/20 rounded-lg p-4">
-                <MapPin className="w-5 h-5 text-yellow-400 mb-2" />
-                <p className="text-white/60 text-[10px] font-bold mb-1 uppercase tracking-widest">
-                  VENUE
-                </p>
-                <p className="text-white font-bold text-sm truncate uppercase">
-                  {event.location || "Online"}
-                </p>
-              </div>
             </div>
 
             <div className="space-y-4">
@@ -192,7 +280,7 @@ export default function EventDetailPage() {
               </div>
             </div>
 
-            {!isOpen ? (
+            {!isOpen && !isUserRegistered ? (
               <div className="bg-[#111111] border-2 border-red-500/20 rounded-xl p-8 text-center">
                 <Shield className="w-12 h-12 text-red-500 mx-auto mb-4" />
                 <h3 className="text-red-500 text-2xl font-black uppercase tracking-wider mb-2">
@@ -222,7 +310,7 @@ export default function EventDetailPage() {
                     </h3>
                     <p className="text-white/60 text-sm">
                       {isUserRegistered
-                        ? "You are already listed in the deployment roster."
+                        ? "You are already listed in the deployment roster. Below are your submitted details."
                         : event.mode === "solo"
                           ? "Register for this operation as a solo combatant."
                           : `Form your squad (max ${event.maxTeamSize} members)`}
@@ -230,41 +318,96 @@ export default function EventDetailPage() {
                   </div>
                 </div>
 
-                {event.mode === "team" && !isUserRegistered && (
+                {/* SOLO FORM */}
+                {event.mode === "solo" && event.requiresCodeforces && (
+                  <div className="mb-8">
+                    <input
+                      required
+                      type="text"
+                      value={soloCF}
+                      onChange={(e) => setSoloCF(e.target.value)}
+                      disabled={isUserRegistered}
+                      placeholder="YOUR CODEFORCES HANDLE"
+                      className={`${inputBaseStyle} ${isUserRegistered ? inputDisabledStyle : inputActiveStyle}`}
+                    />
+                  </div>
+                )}
+
+                {/* TEAM FORM */}
+                {event.mode === "team" && (
                   <form className="space-y-5 mb-8">
                     <input
                       required
                       type="text"
                       value={teamName}
                       onChange={(e) => setTeamName(e.target.value)}
+                      disabled={isUserRegistered}
                       placeholder="TEAM NAME"
-                      className="w-full bg-black border-2 border-yellow-400/20 rounded-xl px-5 py-4 text-white focus:border-yellow-400/60 outline-none"
+                      className={`${inputBaseStyle} ${isUserRegistered ? inputDisabledStyle : inputActiveStyle}`}
                     />
+
+                    {event.requiresCodeforces && (
+                      <input
+                        required
+                        type="text"
+                        value={leaderCF}
+                        onChange={(e) => setLeaderCF(e.target.value)}
+                        disabled={isUserRegistered}
+                        placeholder="LEADER'S CODEFORCES HANDLE"
+                        className={`${inputBaseStyle} ${isUserRegistered ? inputDisabledStyle : inputActiveStyle}`}
+                      />
+                    )}
+
                     <div className="space-y-3">
                       {emails.map((email, index) => (
-                        <input
+                        <div
                           key={index}
-                          type="email"
-                          required
-                          value={email}
-                          onChange={(e) => {
-                            const newEmails = [...emails];
-                            newEmails[index] = e.target.value;
-                            setEmails(newEmails);
-                          }}
-                          placeholder={`MEMBER ${index + 1} EMAIL`}
-                          className="w-full bg-black border-2 border-yellow-400/20 rounded-xl px-5 py-4 text-white focus:border-yellow-400/60 outline-none"
-                        />
-                      ))}
-                      {emails.length < event.maxTeamSize && (
-                        <button
-                          type="button"
-                          onClick={() => setEmails([...emails, ""])}
-                          className="text-yellow-400 text-xs font-black tracking-widest"
+                          className="flex flex-col sm:flex-row gap-3"
                         >
-                          + ADD MEMBER
-                        </button>
-                      )}
+                          <input
+                            type={isUserRegistered ? "text" : "email"}
+                            required
+                            value={email}
+                            onChange={(e) => {
+                              const newEmails = [...emails];
+                              newEmails[index] = e.target.value;
+                              setEmails(newEmails);
+                            }}
+                            disabled={isUserRegistered}
+                            placeholder={`MEMBER ${index + 1} EMAIL`}
+                            className={`flex-1 ${inputBaseStyle} ${isUserRegistered ? inputDisabledStyle : inputActiveStyle}`}
+                          />
+                          {event.requiresCodeforces && (
+                            <input
+                              type="text"
+                              required
+                              value={memberCFs[index] || ""}
+                              onChange={(e) => {
+                                const newCfs = [...memberCFs];
+                                newCfs[index] = e.target.value;
+                                setMemberCFs(newCfs);
+                              }}
+                              disabled={isUserRegistered}
+                              placeholder={`MEMBER ${index + 1} CF HANDLE`}
+                              className={`sm:w-1/2 ${inputBaseStyle} ${isUserRegistered ? inputDisabledStyle : inputActiveStyle}`}
+                            />
+                          )}
+                        </div>
+                      ))}
+
+                      {!isUserRegistered &&
+                        emails.length < event.maxTeamSize && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEmails([...emails, ""]);
+                              setMemberCFs([...memberCFs, ""]);
+                            }}
+                            className="text-yellow-400 text-xs font-black tracking-widest mt-2"
+                          >
+                            + ADD MEMBER
+                          </button>
+                        )}
                     </div>
                   </form>
                 )}

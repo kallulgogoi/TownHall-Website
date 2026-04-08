@@ -223,14 +223,20 @@ export default function AdminRegistrations({ events }: any) {
                         viewingReg.teamLeader?.scholarId
                       }
                     />
-                    <DetailRow
-                      icon={Code}
-                      label="Codeforces Handle"
-                      value={
-                        viewingReg.user?.codeforcesHandle ||
-                        viewingReg.teamLeader?.codeforcesHandle
-                      }
-                    />
+
+                    {/* ONLY RENDER IF CF EXISTS ON THE REGISTRATION TICKET */}
+                    {(viewingReg.codeforcesHandle ||
+                      viewingReg.leaderCodeforcesHandle) && (
+                      <DetailRow
+                        icon={Code}
+                        label="Codeforces Handle"
+                        value={
+                          viewingReg.codeforcesHandle ||
+                          viewingReg.leaderCodeforcesHandle
+                        }
+                      />
+                    )}
+
                     <DetailRow
                       icon={MapPin}
                       label="Branch"
@@ -272,6 +278,12 @@ export default function AdminRegistrations({ events }: any) {
                             <p className="text-[10px] text-white/30 font-mono mt-0.5">
                               {m.scholarId}
                             </p>
+                            {/* RENDER MEMBER CF HANDLES IF THEY EXIST */}
+                            {viewingReg.memberCodeforcesHandles?.[idx] && (
+                              <p className="text-[10px] text-yellow-400 font-mono mt-1">
+                                CF: {viewingReg.memberCodeforcesHandles[idx]}
+                              </p>
+                            )}
                           </div>
                         </div>
                       ))}

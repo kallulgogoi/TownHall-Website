@@ -191,11 +191,18 @@ function RegistrationCard({ reg, type, index, userProfile }: any) {
               />
             )}
 
-            <DetailItem
-              icon={Code}
-              label="Codeforces"
-              value={displayUser?.codeforcesHandle}
-            />
+            {/* ONLY RENDER IF CF EXISTS ON THE TICKET */}
+            {(reg.codeforcesHandle || reg.leaderCodeforcesHandle) && (
+              <DetailItem
+                icon={Code}
+                label="Codeforces"
+                value={
+                  type === "solo"
+                    ? reg.codeforcesHandle
+                    : reg.leaderCodeforcesHandle
+                }
+              />
+            )}
 
             <DetailItem
               icon={Phone}
@@ -237,6 +244,12 @@ function RegistrationCard({ reg, type, index, userProfile }: any) {
                     <p className="text-xs text-gray-500">
                       {member.scholarId || "ID pending"}
                     </p>
+                    {/* SHOW MEMBER CF HANDLE IF IT EXISTS IN THE TICKET */}
+                    {reg.memberCodeforcesHandles?.[i] && (
+                      <p className="text-xs text-yellow-400 mt-0.5">
+                        CF: {reg.memberCodeforcesHandles[i]}
+                      </p>
+                    )}
                   </div>
                   <div className="h-2 w-2 rounded-full bg-blue-400" />
                 </div>

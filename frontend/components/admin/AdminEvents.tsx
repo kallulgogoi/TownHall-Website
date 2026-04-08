@@ -16,13 +16,14 @@ import {
   Clock,
   FileText,
   Loader2,
+  Code,
 } from "lucide-react";
 
 export default function AdminEvents({ events, fetchData }: any) {
   const [showDrawer, setShowDrawer] = useState(false);
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
   const [evFile, setEvFile] = useState<File | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false); // New Loading State
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [evForm, setEvForm] = useState({
     title: "",
     description: "",
@@ -31,14 +32,15 @@ export default function AdminEvents({ events, fetchData }: any) {
     mode: "solo",
     maxTeamSize: "1",
     whatsappGroupLink: "",
+    requiresCodeforces: false,
   });
 
   const handleEventSubmit = async (e: any) => {
     e.preventDefault();
-    setIsSubmitting(true); // Start Loading
+    setIsSubmitting(true);
 
     const fd = new FormData();
-    Object.entries(evForm).forEach(([k, v]) => fd.append(k, v));
+    Object.entries(evForm).forEach(([k, v]) => fd.append(k, v.toString()));
     if (evFile) fd.append("poster", evFile);
 
     const loadingToast = toast.loading(
@@ -62,13 +64,13 @@ export default function AdminEvents({ events, fetchData }: any) {
         toast.success("Event created successfully", { id: loadingToast });
       }
       fetchData();
-      closeDrawer(); // Close drawer only after success
+      closeDrawer();
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Operation failed", {
         id: loadingToast,
       });
     } finally {
-      setIsSubmitting(false); // Stop Loading regardless of outcome
+      setIsSubmitting(false);
     }
   };
 
@@ -82,6 +84,7 @@ export default function AdminEvents({ events, fetchData }: any) {
       mode: "solo",
       maxTeamSize: "1",
       whatsappGroupLink: "",
+      requiresCodeforces: false,
     });
     setEvFile(null);
     setShowDrawer(true);
@@ -97,13 +100,14 @@ export default function AdminEvents({ events, fetchData }: any) {
       mode: ev.mode,
       maxTeamSize: ev.maxTeamSize.toString(),
       whatsappGroupLink: ev.whatsappGroupLink || "",
+      requiresCodeforces: ev.requiresCodeforces || false,
     });
     setEvFile(null);
     setShowDrawer(true);
   };
 
   const closeDrawer = () => {
-    if (isSubmitting) return; // Prevent closing while uploading
+    if (isSubmitting) return;
     setShowDrawer(false);
     setEditingEventId(null);
   };
@@ -385,6 +389,36 @@ export default function AdminEvents({ events, fetchData }: any) {
                     disabled={isSubmitting}
                     className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-sm text-green-400 outline-none border-green-500/10 focus:border-green-500/40 disabled:opacity-50"
                     placeholder="WhatsApp Group Link"
+                  />
+                </div>
+
+                {/* REQUIRE CODEFORCES TOGGLE */}
+                <div className="flex items-center gap-3 bg-white/[0.02] border border-white/10 rounded-xl px-5 py-4 hover:border-yellow-400/30 transition-colors">
+                  <div className="flex items-center justify-center p-2 rounded-lg bg-yellow-400/10 text-yellow-400">
+                    <Code size={18} />
+                  </div>
+                  <div className="flex-1">
+                    <label
+                      htmlFor="requiresCodeforces"
+                      className="text-sm font-bold text-white cursor-pointer block"
+                    >
+                      Require Codeforces Handle
+                    </label>
+                    <p className="text-[10px] text-white/40 uppercase tracking-widest mt-0.5">
+                      Participants must provide CF ID to register
+                    </p>
+                  </div>
+                  <input
+                    type="checkbox"
+                    id="requiresCodeforces"
+                    checked={evForm.requiresCodeforces}
+                    onChange={(e) =>
+                      setEvForm({
+                        ...evForm,
+                        requiresCodeforces: e.target.checked,
+                      })
+                    }
+                    className="w-5 h-5 accent-yellow-400 cursor-pointer"
                   />
                 </div>
 

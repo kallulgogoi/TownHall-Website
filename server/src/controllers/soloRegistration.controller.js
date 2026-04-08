@@ -1,26 +1,35 @@
 const Registration = require("../models/soloRegister.model");
 const Event = require("../models/event.model");
 const { sendNotification } = require("../controllers/notification.controller");
+
 exports.registerSolo = async (req, res) => {
+  const { codeforcesHandle } = req.body;
   const event = await Event.findById(req.params.eventId);
 
   if (event.mode !== "solo")
     return res.status(400).json({ message: "Not solo event" });
-
   if (event.registrationStatus !== "open")
     return res.status(400).json({ message: "Registration closed" });
+
+  if (event.requiresCodeforces && !codeforcesHandle) {
+    return res
+      .status(400)
+      .json({ message: "Codeforces handle is required for this event" });
+  }
 
   const existing = await Registration.findOne({
     user: req.user.id,
     event: event._id,
   });
-
   if (existing) return res.status(400).json({ message: "Already registered" });
 
+  // ONLY saving to the registration ticket
   const registration = await Registration.create({
     user: req.user.id,
     event: event._id,
+    codeforcesHandle: event.requiresCodeforces ? codeforcesHandle : undefined,
   });
+
   await sendNotification(
     req.user.id,
     "Registration Successful",

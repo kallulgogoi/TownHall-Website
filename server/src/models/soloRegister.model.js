@@ -7,7 +7,7 @@ const registrationSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-
+    codeforcesHandle: { type: String },
     event: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Event",

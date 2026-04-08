@@ -6,7 +6,6 @@ import {
   GraduationCap,
   Phone,
   Mail,
-  User as UserIcon,
   Calendar,
   Award,
   X,
@@ -23,8 +22,6 @@ export default function ProfileCard({
   handleUpdate,
   branches,
 }: any) {
-
-
   return (
     <div className="bg-[#111111] border border-gray-800 rounded-xl overflow-hidden">
       {/* Cover Photo */}
@@ -67,11 +64,7 @@ export default function ProfileCard({
               </h2>
               <p className="text-sm text-yellow-400/80">Student</p>
             </div>
-            <ProfileInfoRow
-              icon={UserIcon}
-              label="Codeforces Handle"
-              value={data.profile?.codeforcesHandle}
-            />
+
             <div className="space-y-4">
               <ProfileInfoRow
                 icon={Hash}
@@ -137,20 +130,7 @@ export default function ProfileCard({
                 placeholder="Enter your name"
               />
             </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">
-                Codeforces Handle
-              </label>
-              <input
-                required
-                value={editForm.codeforcesHandle}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, codeforcesHandle: e.target.value })
-                }
-                className="w-full bg-[#0a0a0a] border border-gray-800 rounded-lg px-4 py-2.5 text-sm text-white focus:border-yellow-400/50 focus:outline-none transition-colors"
-                placeholder="Enter Codeforces handle"
-              />
-            </div>
+
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">
                 Scholar ID
