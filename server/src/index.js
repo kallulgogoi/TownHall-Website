@@ -12,6 +12,7 @@ const announcementRoutes = require("./routes/announcement.routes");
 const soloRegistrationRoutes = require("./routes/soloRegistration.routes");
 const teamRegistrationRoutes = require("./routes/teamRegistration.routes");
 const notificationRoutes = require("./routes/notification.routes");
+const cronRoutes = require("./routes/cron.routes");
 
 // Connect to database
 connectDb();
@@ -38,6 +39,7 @@ app.use("/api/announcements", announcementRoutes);
 app.use("/api/registrations/solo", soloRegistrationRoutes);
 app.use("/api/registrations/team", teamRegistrationRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/cron", cronRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });

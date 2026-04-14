@@ -8,6 +8,7 @@ import { Toaster } from "react-hot-toast";
 import localFont from "next/font/local";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { Analytics } from "@vercel/analytics/react";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -70,6 +71,7 @@ export default function RootLayout({
           <ScrollToTop />
           <Navbar />
           {children}
+          <Analytics />
         </div>
       </body>
     </html>
