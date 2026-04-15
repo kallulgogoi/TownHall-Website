@@ -114,16 +114,22 @@ export default function Navbar() {
           {/* Logo */}
           <Link
             href="/"
-            className="flex items-center gap-2 group min-w-[140px]"
+            className="flex items-center gap-2 group min-w-[120px]"
           >
-            <div className="relative transition-transform duration-300 group-hover:scale-105">
+            <div className="relative flex items-center gap-4 transition-transform duration-300 group-hover:scale-105">
               <Image
-                src="/images/logo.png"
-                width={140}
-                height={70}
+                src="/images/logo1.png"
+                width={40}
+                height={30}
                 alt="Logo"
                 className="drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]"
               />
+
+              {/* Hidden on mobile, visible from sm screens */}
+              <h2 className="hidden sm:block text-2xl font-semibold tracking-wide">
+                Town
+                <span className="text-yellow-400">Hall</span>
+              </h2>
             </div>
           </Link>
 

@@ -38,10 +38,12 @@ export default function AdminRegistrations({ events }: any) {
       try {
         const res = await api.get(`/registrations/${ev.mode}/event/${id}`);
         setRegs(res.data);
+        toast.dismiss(loadingToast);
         toast.success(`${res.data.length} registrations loaded`, {
           id: loadingToast,
         });
       } catch (err) {
+        toast.dismiss(loadingToast);
         toast.error("Failed to load registrations", { id: loadingToast });
       }
     }

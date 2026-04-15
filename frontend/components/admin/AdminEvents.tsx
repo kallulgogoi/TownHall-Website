@@ -37,8 +37,12 @@ export default function AdminEvents({ events, fetchData }: any) {
 
   const handleEventSubmit = async (e: any) => {
     e.preventDefault();
-    setIsSubmitting(true);
 
+    //validate BEFORE toast
+    if (!editingEventId && !evFile) {
+      return toast.error("Event poster is required");
+    }
+    setIsSubmitting(true);
     const fd = new FormData();
     Object.entries(evForm).forEach(([k, v]) => fd.append(k, v.toString()));
     if (evFile) fd.append("poster", evFile);
@@ -54,15 +58,12 @@ export default function AdminEvents({ events, fetchData }: any) {
         });
         toast.success("Event updated successfully", { id: loadingToast });
       } else {
-        if (!evFile) {
-          setIsSubmitting(false);
-          return toast.error("Event poster is required", { id: loadingToast });
-        }
         await api.post("/events", fd, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         toast.success("Event created successfully", { id: loadingToast });
       }
+
       fetchData();
       closeDrawer();
     } catch (err: any) {
